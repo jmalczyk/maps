@@ -56,43 +56,53 @@
     <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>
 
     <script>
-      // create layer selector
-      function createSelector(layer) {
-        var sql = new cartodb.SQL({ user: 'documentation' });
 
-        var $options = $('#layer_selector li');
-        $options.click(function(e) {
+
+      // create layer selector
+      function createSelector(layers) {
+        var sql = new cartodb.SQL({ user: 'jmalczyk' });
+
+        sql.execute("SELECT scientificname FROM butterfly_maps GROUP BY scientificname ORDER BY scientificname")
+          .done(function(data){
+            data.rows.forEach(
+
+              function(row) {
+                  var option = '<option value="'+row.scientificname+'">'+row.scientificname+'</option>';
+                $('#scinames').append($(option));
+              }
+            )
+          });
+
+
+        var $scinames = $('#scinames');
+        $scinames.change(function(e) {
           // get the area of the selected layer
-          var $li = $(e.target);
-          var area = $li.attr('data');
+          var $select = $(e.target);
+          var sciname = $select.val();
 
           // deselect all and select the clicked one
-          $options.removeClass('selected');
-          $li.addClass('selected');
 
           // create query based on data from the layer
-          var query = "select * from european_countries_e";
+          var rangeQuery = "select * from butterfly_maps where scientificname = '" + sciname + "'";
+          var pointsQuery = "SELECT *  FROM union_ith_160428 WHERE scientificname =  '" + sciname + "'";
 
-          if(area !== 'all') {
-            query = "select * from  where area > " + area;
-          }
 
           // change the query in the layer to update the map
-          layer.setSQL(query);
+          layers.range.setSQL(rangeQuery);
+          layers.points.setSQL(pointsQuery);
         });
       }
 
       function main() {
         cartodb.createVis('map', 'https://jmalczyk.cartodb.com/api/v2/viz/d76c3bb6-109f-11e6-8e58-0e5db1731f59/viz.json', {
           tiles_loader: true,
-          center_lat: 50,
-          center_lon: 20,
-          zoom: 3
+
         })
         .done(function(vis, layers) {
           // layer 0 is the base layer, layer 1 is cartodb layer
-          var subLayer = layers[1].getSubLayer(0);
-          createSelector(subLayer);
+          var subLayers = {"range":layers[1].getSubLayer(0),
+            "points": layers[1].getSubLayer(1)}
+          createSelector(subLayers);
         })
         .error(function(err) {
           console.log(err);
