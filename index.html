@@ -48,13 +48,8 @@
   <body>
     <div id="map"></div>
     <div id="layer_selector" class="cartodb-infobox">
-      <ul>
-        <li data="all" class="selected">All countries</li>
-        <li data="1000">area >1000 km<sup>2</sup></li>
-        <li data="6000">area >6000 km<sup>2</sup></li>
-        <li data="10000">area >10000 km<sup>2</sup></li>
-        <li data="50000">area >50000 km<sup>2</sup></li>
-      </ul>
+      <select class="form-control" id="scinames">
+      </select>
     </div>
 
     <!-- include cartodb.js library -->
@@ -79,7 +74,7 @@
           var query = "select * from european_countries_e";
 
           if(area !== 'all') {
-            query = "select * from european_countries_e where area > " + area;
+            query = "select * from  where area > " + area;
           }
 
           // change the query in the layer to update the map
@@ -88,7 +83,7 @@
       }
 
       function main() {
-        cartodb.createVis('map', 'http://documentation.cartodb.com/api/v2/viz/2b13c956-e7c1-11e2-806b-5404a6a683d5/viz.json', {
+        cartodb.createVis('map', 'https://jmalczyk.cartodb.com/api/v2/viz/d76c3bb6-109f-11e6-8e58-0e5db1731f59/viz.json', {
           tiles_loader: true,
           center_lat: 50,
           center_lon: 20,
@@ -108,4 +103,3 @@
     </script>
   </body>
 </html>
-
